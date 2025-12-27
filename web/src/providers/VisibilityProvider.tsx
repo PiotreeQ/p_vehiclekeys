@@ -22,7 +22,7 @@ export const VisibilityProvider: React.FC<{
     if (visible) {
       setVisible(true)
     } else {
-      setTimeout(() => setVisible(false), 1000);
+      setTimeout(() => setVisible(false), 500);
     }
   }
 
