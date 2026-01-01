@@ -14,14 +14,31 @@ function Engine:applyFlags()
 end
 
 Citizen.CreateThread(function()
-    if Config.Engine.preventDisable then
+    if Config.Engine.preventDisable or Config.Locks.lockNpcVehicles then
         while true do
             Citizen.Wait(500)
             local vehicle = GetVehiclePedIsTryingToEnter(cache.ped)
             if vehicle and vehicle ~= 0 then
-                local engineOn = GetIsVehicleEngineRunning(vehicle)
-                if engineOn then
-                    SetVehicleEngineOn(vehicle, true, true, true)
+                if Config.Engine.preventDisable then
+                    local engineOn = GetIsVehicleEngineRunning(vehicle)
+                    if engineOn then
+                        SetVehicleEngineOn(vehicle, true, true, true)
+                    end
+                end
+
+                if Config.Locks.lockNpcVehicles then
+                    local lockStatus = GetVehicleDoorLockStatus(vehicle)
+                    local isOwned = IsVehiclePreviouslyOwnedByPlayer(vehicle)
+                    local driverPed = GetPedInVehicleSeat(vehicle, -1)
+                    if not isOwned and (driverPed == 0 or not IsPedAPlayer(driverPed)) then
+                        if lockStatus == 1 and driverPed ~= 0 then
+                            SetVehicleDoorsLocked(vehicle, 2)
+                            ClearPedTasks(cache.ped)
+                        elseif lockStatus > 2 then
+                            SetVehicleDoorsLocked(vehicle, 1)
+                            ClearPedTasks(cache.ped)
+                        end
+                    end
                 end
             end
         end

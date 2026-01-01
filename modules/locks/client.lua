@@ -1,4 +1,4 @@
-local Locks = {}
+Locks = {}
 local Config = require 'config.shared'
 local Utils = require 'modules.utils.client'
 
@@ -93,7 +93,7 @@ function Locks:playAnimLock()
         end
 
         local keyProp = nil
-        if Config.Locks.playAnimation == 'advcanced' then
+        if Config.Locks.playAnimation == 'advanced' then
             local coords = GetEntityCoords(cache.ped)
             local keyModel = lib.requestModel('p_car_keys_01')
             keyProp = CreateObject(keyModel, coords.x, coords.y, coords.z - 2.0, true, true, true)
@@ -104,8 +104,9 @@ function Locks:playAnimLock()
             )
         end
 
-        lib.requestAnimDict('anim@mp_player_intmenu@key_fob@')
-        TaskPlayAnim(cache.ped, 'anim@mp_player_intmenu@key_fob@', 'fob_click', 8.0, -8.0, -1, 48, 0, false, false, false)
+        local animDict = lib.requestAnimDict('anim@mp_player_intmenu@key_fob@')
+        TaskPlayAnim(cache.ped, animDict, 'fob_click', 8.0, -8.0, -1, 48, 0, false, false, false)
+        RemoveAnimDict(animDict)
         self.timer = lib.timer(1000, function()
             ClearPedTasks(cache.ped)
 
@@ -154,18 +155,18 @@ RegisterNetEvent('p_vehiclekeys/client/locks/toggle', function(netId, state, isS
     Locks:toggleLockState(netId, state, isSource)
 end)
 
-Citizen.CreateThread(function()
-    Citizen.Wait(1000)
+function Locks:registerKey()
     if Config.Locks.keyBind then
         lib.addKeybind({
             name = 'p_vehiclekeys/toggleLock',
             description = locale('keybind_toggle_lock'),
             defaultKey = Config.Locks.keyBind,
             onPressed = function()
-                Locks:toggleLock()
+                self:toggleLock()
             end,
         })
     end
-end)
+end
 
+Locks:registerKey()
 return Locks

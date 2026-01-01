@@ -5,6 +5,7 @@ Theft.isLockpicking = false
 Theft.isHotwiring = false
 Theft.antiSpam = 0
 Theft.currentDifficulty = nil
+Theft.hasWeapon = false
 
 function Theft:getDifficulty(vehicle)
     local vehicleClass = GetVehicleClass(vehicle)
@@ -16,7 +17,7 @@ function Theft:canLockpick()
         return false
     end
 
-    if GetGameTimer() - self.antiSpam < Config.Theft.cooldown then
+    if self.antiSpam > GetGameTimer() then
         Bridge.Notify.showNotify(locale('lockpick_cooldown'), 'error')
         return false
     end
@@ -41,7 +42,7 @@ function Theft:startLockpick(vehicle)
     end
 
     self.isLockpicking = true
-    self.antiSpam = GetGameTimer()
+    self.antiSpam = GetGameTimer() + (Config.Theft.lockpickCooldown * 1000)
     
     local difficulty = self:getDifficulty(vehicle)
     self.currentDifficulty = difficulty
@@ -103,7 +104,7 @@ RegisterNUICallback('lockpickResult', function(data, cb)
         if data.reason == 'broken' then
             Bridge.Notify.showNotify(locale('lockpick_broken'), 'error')
             if Config.Theft.removeItemOnFail then
-                TriggerServerEvent('p_vehiclekeys/server/theft/removeLockpick')
+                TriggerServerEvent('p_bridge/server/removeItem', Config.Theft.requiredItem, 1)
             end
         elseif data.reason == 'timeout' then
             Bridge.Notify.showNotify(locale('lockpick_timeout'), 'error')
@@ -334,5 +335,31 @@ Bridge.Target.addVehicle({
         end
     }
 })
+
+function Theft:weaponThread()
+    self.hasWeapon = true
+    Citizen.CreateThread(function()
+        while self.hasWeapon do
+            local sleep = 2000
+            if not cache.vehicle and IsPlayerFreeAiming(cache.playerId) then
+                sleep = 500
+                local plyCoords = GetEntityCoords(cache.ped)
+                local ped, coords = lib.getClosestPed(plyCoords, 10.0)
+                if ped and ped ~= 0 and not IsPedAPlayer(ped) and not IsPedDeadOrDying(ped) and IsPlayerFreeAimingAtEntity(cache.playerId, ped) then
+                    
+                end
+            end
+            Citizen.Wait(sleep)
+        end
+    end)
+end
+
+lib.onCache('weapon', function(value)
+    if value and value ~= 0 then
+        Theft:weaponThread()
+    else
+        Theft.hasWeapon = false
+    end
+end)
 
 return Theft

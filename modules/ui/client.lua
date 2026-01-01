@@ -1,6 +1,5 @@
 local UI = {}
 local Utils = require 'modules.utils.client'
-local Locks = require 'modules.locks.client'
 UI.Functions = {
     ['toggleLock'] = function(data, cb)
         local vehicle = Utils:getVehicleByPlate(data.plate)
