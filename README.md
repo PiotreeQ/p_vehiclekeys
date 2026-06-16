@@ -11,6 +11,7 @@ YOUTUBE URL HERE
 ## What is this resource?
 
 This is a multi-framework Advanced Vehicle Keys System for FiveM. Handles locking/unlocking, engine control, theft mechanics, and security upgrades.
+> Stop overpaying. Premium keys scripts charge $20-40 for less. This resource is free, open, and built better - multi-framework, actively maintained, and packed with features others lock behind a paywall.
 
 ## Features
 
