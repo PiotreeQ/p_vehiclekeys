@@ -16,7 +16,7 @@ end
 Citizen.CreateThread(function()
     if Config.Engine.preventDisable or Config.Locks.lockNpcVehicles then
         while true do
-            Citizen.Wait(500)
+            Citizen.Wait(100)
             local vehicle = GetVehiclePedIsTryingToEnter(cache.ped)
             if vehicle and vehicle ~= 0 then
                 if Config.Engine.preventDisable then

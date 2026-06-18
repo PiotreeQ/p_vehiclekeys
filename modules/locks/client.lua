@@ -98,13 +98,15 @@ function Locks:flashVehicleLights(entity)
     Citizen.CreateThread(function()
         if not DoesEntityExist(entity) then return end
 
-        local blip = AddBlipForEntity(entity)
-        SetBlipSprite(blip, 225)
-        SetBlipColour(blip, 5)
-        SetBlipFlashes(blip, true)
-        BeginTextCommandSetBlipName('STRING')
-        AddTextComponentSubstringPlayerName(locale('blip_your_vehicle'))
-        EndTextCommandSetBlipName(blip)
+        if Config.Locks.findVehicleBlip then
+            local blip = AddBlipForEntity(entity)
+            SetBlipSprite(blip, 225)
+            SetBlipColour(blip, 5)
+            SetBlipFlashes(blip, true)
+            BeginTextCommandSetBlipName('STRING')
+            AddTextComponentSubstringPlayerName(locale('blip_your_vehicle'))
+            EndTextCommandSetBlipName(blip)
+        end
 
         for i = 1, 6 do
             SetVehicleLights(entity, 2)

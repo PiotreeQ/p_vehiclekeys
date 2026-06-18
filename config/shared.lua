@@ -19,6 +19,7 @@ Config.Settings = {
 ---@field ignoreBikes: boolean [true = bikes are always unlocked, false = bikes can be locked]
 ---@field lockNpcVehicles: boolean Whether NPC vehicles can be locked/unlocked.
 ---@field unlockToolJobs: table A list of jobs that can unlock vehicles without keys (e.g., police, mechanic).
+----@field findVehicleBlip: boolean Whether to create a blip on the map for the vehicle when using the find vehicle feature.
 Config.Locks = {
     carEffect = true,
     playAnimation = 'advanced',
@@ -38,6 +39,7 @@ Config.Locks = {
     ignoreBikes = true,
     lockNpcVehicles = true,
     unlockToolJobs = {'mechanic', 'police'},
+    findVehicleBlip = true
 }
 
 ---@class Config.Engine
