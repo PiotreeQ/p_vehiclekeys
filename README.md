@@ -16,6 +16,7 @@ This is a multi-framework Advanced Vehicle Keys System for FiveM. Handles lockin
 ## Features
 
 - Vehicle Keys: Item-based keys tied to plate metadata; exports for createKey / removeKey / hasKey
+- NPC Vehicle Theft: You can stole a vehicle from NPC by aiming at the driver with weapon
 - Lock / Unlock: Press U to lock/unlock within 15m; animation, horn, indicators; NPC vehicle locking; police/mechanic unlock tool
 - Engine Control: Press Y to toggle engine; blocks starting without a key; preserves steering wheel angle on exit
 - Lockpick Minigame: 4 difficulty tiers (3–6 pins, 20–45s), scales by vehicle class; optional lockpick durability
