@@ -6,7 +6,7 @@
 
 ## Preview
 
-YOUTUBE URL HERE
+https://www.youtube.com/watch?v=_lzPeKR4q4w
 
 ## What is this resource?
 
