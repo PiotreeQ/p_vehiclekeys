@@ -134,7 +134,6 @@ exports('useCarKey', function(data, slot)
     UI:openForPlate(slot?.metadata?.plate)
 end)
 
--- Every other inventory uses a server-registered usable item (see modules/keys/server.lua)
 RegisterNetEvent('p_vehiclekeys/client/keys/useCarKey', function(plate)
     UI:openForPlate(plate)
 end)
