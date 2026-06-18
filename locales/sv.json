@@ -21,6 +21,7 @@
     "lockpick": "Dyrk",
     "hotwire": "Kopplingsstart",
     "time": "Tid",
+    "signal_lock": "Signallås",
     "bridge": "Bridge",
     "cancel": "Avbryt",
     "engine_started": "Motor startad",

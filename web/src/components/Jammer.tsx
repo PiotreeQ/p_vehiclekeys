@@ -506,7 +506,7 @@ const Jammer: React.FC = () => {
                 <div className={mg.bars}>
                     <div className={mg.barRow}>
                         <div className={mg.barHead}>
-                            <span className={mg.barLabel}>Time</span>
+                            <span className={mg.barLabel}>{t('time')}</span>
                             <span className={`${mg.barValue} ${timeRemaining < 5000 ? mg.danger : ''}`}>
                                 {formatTime(timeRemaining)}
                             </span>
@@ -523,7 +523,7 @@ const Jammer: React.FC = () => {
                     </div>
                     <div className={mg.barRow}>
                         <div className={mg.barHead}>
-                            <span className={mg.barLabel}>Signal lock</span>
+                            <span className={mg.barLabel}>{t('signal_lock')}</span>
                             <span className={mg.barValue}>{Math.round(lockProgress)}%</span>
                         </div>
                         <div className={mg.bar}>

@@ -21,6 +21,7 @@
     "lockpick": "撬锁",
     "hotwire": "热线启动",
     "time": "时间",
+    "signal_lock": "信号锁定",
     "bridge": "Bridge",
     "cancel": "取消",
     "engine_started": "引擎已启动",

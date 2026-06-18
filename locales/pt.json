@@ -21,6 +21,7 @@
     "lockpick": "Gazua",
     "hotwire": "Ligar com fio",
     "time": "Tempo",
+    "signal_lock": "Bloqueio de sinal",
     "bridge": "Bridge",
     "cancel": "Cancelar",
     "engine_started": "Motor ligado",

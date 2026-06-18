@@ -127,6 +127,7 @@ end
 function Theft:startLockpick(vehicle)
     if not self:canLockpick(vehicle) then return end
     if not vehicle or not DoesEntityExist(vehicle) then return end
+    if #(GetEntityCoords(vehicle) - GetEntityCoords(cache.ped)) > 5.0 then return end
 
     if GetVehicleDoorLockStatus(vehicle) <= 1 then
         Bridge.Notify.showNotify(locale('vehicle_already_unlocked'), 'info')

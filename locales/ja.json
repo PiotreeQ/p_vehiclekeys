@@ -21,6 +21,7 @@
     "lockpick": "ロック解除",
     "hotwire": "配線操作",
     "time": "時間",
+    "signal_lock": "信号ロック",
     "bridge": "Bridge",
     "cancel": "キャンセル",
     "engine_started": "エンジン始動",

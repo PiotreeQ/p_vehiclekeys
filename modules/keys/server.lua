@@ -55,4 +55,23 @@ RegisterNetEvent('p_vehiclekeys/removeKey', function(plate, netId, removeAll)
     Keys:removeKey(source, plate, netId, removeAll)
 end)
 
+Citizen.CreateThread(function()
+    while not Bridge?.Framework?.registerItem do
+        Citizen.Wait(100)
+    end
+
+    Bridge.Framework.registerItem('car_key', function(source, item)
+        local metadata = type(item) == 'table' and (item.metadata or item.info) or nil
+        local plate = metadata and metadata.plate
+        if not plate or plate == '' then
+            if Bridge?.Config?.Debug then
+                lib.print.error('[car_key] No plate metadata on used item', source)
+            end
+            return
+        end
+
+        TriggerClientEvent('p_vehiclekeys/client/keys/useCarKey', source, Utils:trim(plate))
+    end)
+end)
+
 return Keys

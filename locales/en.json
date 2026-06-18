@@ -21,6 +21,7 @@
     "lockpick": "Lockpick",
     "hotwire": "Hotwire",
     "time": "Time",
+    "signal_lock": "Signal Lock",
     "bridge": "Bridge",
     "cancel": "Cancel",
     "engine_started": "Engine started",

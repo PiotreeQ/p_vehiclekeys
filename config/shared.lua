@@ -1,7 +1,7 @@
 local Config = {}
 
 -- ## Set your Framework / Inventory / Language etc in p_bridge!
--- Download it here: https://github.com/PiotreeQ/p_bridge\
+-- Download it here: https://github.com/PiotreeQ/p_bridge
 -- You can use /spawnKeys command to test key spawning (must be in a vehicle and Config.Debug must be true in p_bridge config)
 
 ---@class Config.Settings

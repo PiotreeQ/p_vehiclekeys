@@ -115,8 +115,7 @@ function UI:Open(data)
     SetNuiFocus(true, true)
 end
 
-exports('useCarKey', function(data, slot)
-    local vehPlate = slot?.metadata?.plate
+function UI:openForPlate(vehPlate)
     if not vehPlate or vehPlate == '' then
         return
     end
@@ -128,6 +127,16 @@ exports('useCarKey', function(data, slot)
     end
 
     UI:Open({ plate = vehPlate, isLocked = GetVehicleDoorLockStatus(vehicle) >= 2 })
+end
+
+-- ox_inventory calls this directly via the item's client.export
+exports('useCarKey', function(data, slot)
+    UI:openForPlate(slot?.metadata?.plate)
+end)
+
+-- Every other inventory uses a server-registered usable item (see modules/keys/server.lua)
+RegisterNetEvent('p_vehiclekeys/client/keys/useCarKey', function(plate)
+    UI:openForPlate(plate)
 end)
 
 RegisterNUICallback('hideFrame', function(data, cb)

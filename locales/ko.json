@@ -21,6 +21,7 @@
     "lockpick": "자물쇠 따기",
     "hotwire": "배선 조작",
     "time": "시간",
+    "signal_lock": "신호 잠금",
     "bridge": "Bridge",
     "cancel": "취소",
     "engine_started": "엔진 시동",
