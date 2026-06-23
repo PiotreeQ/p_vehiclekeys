@@ -89,7 +89,8 @@ RegisterNetEvent('p_vehiclekeys/server/theft/upgradeSecurity', function(netId)
     if not entity then return end
 
     local job = Bridge.Framework.getPlayerJob(_source)
-    if not lib.table.contains(Config.SecurityUpgrade.requiredJob, job?.name) then
+    local jobName = type(job) == 'table' and job.name or job
+    if not lib.table.contains(Config.SecurityUpgrade.requiredJob, jobName) then
         return Bridge.Notify.showNotify(_source, locale('upgrade_wrong_job'), 'error')
     end
 
