@@ -92,15 +92,13 @@ const Dial: React.FC<DialProps> = ({ value, onChange, min, max, label, color, di
             startValue.current = value;
         }
         e.preventDefault();
-    };
 
-    useEffect(() => {
-        const handleMouseMove = (e: MouseEvent) => {
+        const handleMouseMove = (moveEvent: MouseEvent) => {
             if (!isDragging.current || !dialRef.current) return;
             const rect = dialRef.current.getBoundingClientRect();
             const centerX = rect.left + rect.width / 2;
             const centerY = rect.top + rect.height / 2;
-            const currentAngle = Math.atan2(e.clientY - centerY, e.clientX - centerX) * (180 / Math.PI);
+            const currentAngle = Math.atan2(moveEvent.clientY - centerY, moveEvent.clientX - centerX) * (180 / Math.PI);
             const angleDiff = currentAngle - startAngle.current;
             const newAngle = valueToAngle(startValue.current) + angleDiff;
             const clampedAngle = Math.max(-135, Math.min(135, newAngle));
@@ -110,15 +108,13 @@ const Dial: React.FC<DialProps> = ({ value, onChange, min, max, label, color, di
 
         const handleMouseUp = () => {
             isDragging.current = false;
+            window.removeEventListener('mousemove', handleMouseMove);
+            window.removeEventListener('mouseup', handleMouseUp);
         };
 
         window.addEventListener('mousemove', handleMouseMove);
         window.addEventListener('mouseup', handleMouseUp);
-        return () => {
-            window.removeEventListener('mousemove', handleMouseMove);
-            window.removeEventListener('mouseup', handleMouseUp);
-        };
-    }, [onChange, min, max, value]);
+    };
 
     const angle = valueToAngle(value);
     // const mainColor = isMatched ? '#4ade80' : color;

@@ -10,6 +10,7 @@ Theft.antiSpam = 0
 Theft.targetVehicle = nil
 Theft.hasWeapon = false
 Theft.robbedPeds = {}
+Theft.weaponThreadId = 0
 
 function Theft:reset()
     self.isLockpicking = false
@@ -373,7 +374,8 @@ function Theft:canUpgradeSecurity(vehicle)
     end
 
     local plyJob = Bridge.Framework.fetchPlayerJob()
-    if not Config.SecurityUpgrade.requiredJob or not lib.table.contains(Config.SecurityUpgrade.requiredJob, plyJob?.name) then
+    local jobName = type(plyJob) == 'table' and plyJob.name or plyJob
+    if not Config.SecurityUpgrade.requiredJob or not lib.table.contains(Config.SecurityUpgrade.requiredJob, jobName) then
         return false
     end
 
@@ -396,7 +398,8 @@ function Theft:upgradeSecurity(vehicle)
     end
 
     local plyJob = Bridge.Framework.fetchPlayerJob()
-    if not Config.SecurityUpgrade.requiredJob or not lib.table.contains(Config.SecurityUpgrade.requiredJob, plyJob?.name) then
+    local jobName = type(plyJob) == 'table' and plyJob.name or plyJob
+    if not Config.SecurityUpgrade.requiredJob or not lib.table.contains(Config.SecurityUpgrade.requiredJob, jobName) then
         Bridge.Notify.showNotify(locale('upgrade_job_required'), 'error')
         return
     end
@@ -453,8 +456,10 @@ Bridge.Target.addVehicle({
 
 function Theft:weaponThread()
     self.hasWeapon = true
+    self.weaponThreadId = self.weaponThreadId + 1
+    local currentThreadId = self.weaponThreadId
     Citizen.CreateThread(function()
-        while self.hasWeapon do
+        while self.hasWeapon and currentThreadId == self.weaponThreadId do
             local sleep = 1500
             if not cache.vehicle and IsPlayerFreeAiming(cache.playerId) then
                 sleep = 500

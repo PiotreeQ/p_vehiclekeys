@@ -282,4 +282,26 @@ if shouldShim('wasabi_carlock') then
     end)
 end
 
+if shouldShim('p_carkeys') then
+    RegisterNetEvent('p_carkeys:CreateKeys', function(plate)
+        giveKey(source, plate)
+    end)
+
+    RegisterNetEvent('p_carkeys:RemoveKeys', function(plate)
+        removeKey(source, plate)
+    end)
+
+    registerExport('p_carkeys', 'CreateKeys', function(src, plate)
+        giveKey(src, plate)
+    end)
+
+    registerExport('p_carkeys', 'RemoveKeys', function(src, plate)
+        removeKey(src, plate)
+    end)
+
+    registerExport('p_carkeys', 'HasKeys', function(src, plate)
+        return hasKey(src, plate)
+    end)
+end
+
 return Compat
