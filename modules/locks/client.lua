@@ -2,9 +2,6 @@ local Locks = {}
 local Config = require 'config.shared'
 local Utils = require 'modules.utils.client'
 
--- Vehicles unlocked without a key (e.g. lockpicked). The ambient re-lock thread
--- (modules/engine/client.lua) skips these so they don't get re-locked while the
--- player is climbing in after breaking the lock.
 Locks.theftUnlocked = {}
 
 function Locks:toggleLock(vehicleEntity)
@@ -189,11 +186,8 @@ function Locks:toggleLockState(netId, state, isSource)
     local lockState = state and 1 or 2
     SetVehicleDoorsLocked(entity, lockState)
     SetVehicleDoorsLockedForAllPlayers(entity, lockState == 2)
-
-    -- Track keyless unlocks so the ambient re-lock thread leaves this vehicle open.
     self.theftUnlocked[entity] = state or nil
 
-    -- unlocking with the key silences any active theft alarm
     if state then
         TriggerEvent('p_vehiclekeys/client/theft/stopAlarm', netId)
     end
