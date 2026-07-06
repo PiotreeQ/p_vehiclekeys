@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState, useRef } from "react";
 import { useNuiEvent } from "../hooks/useNuiEvent";
 import { fetchNui } from "../utils/fetchNui";
 import { isEnvBrowser } from "../utils/misc";
@@ -17,14 +17,23 @@ export const VisibilityProvider: React.FC<{
   componentName: string;
 }> = ({ children, componentName }) => {
   const [visible, setVisible] = useState(false);
+  const timeoutRef = useRef<number | null>(null);
 
   const setVisibleHandler = (visible: boolean) => {
-    if (visible) {
-      setVisible(true)
-    } else {
-      setTimeout(() => setVisible(false), 500);
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
     }
-  }
+
+    if (visible) {
+      setVisible(true);
+    } else {
+      timeoutRef.current = window.setTimeout(() => {
+        setVisible(false);
+        timeoutRef.current = null;
+      }, 500);
+    }
+  };
 
   useNuiEvent<boolean>(`setVisible${componentName}`, setVisibleHandler);
 
@@ -39,6 +48,14 @@ export const VisibilityProvider: React.FC<{
 
     return () => window.removeEventListener("keydown", keyHandler);
   }, [visible, componentName]);
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   return (
     <VisibilityCtx.Provider value={{ visible, setVisible }}>
