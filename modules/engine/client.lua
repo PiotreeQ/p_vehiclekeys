@@ -1,6 +1,7 @@
 local Engine = {}
 local Config = require 'config.shared'
 local Utils = require 'modules.utils.client'
+local Locks = require 'modules.locks.client'
 
 lib.onCache('ped', function(value)
     Engine:applyFlags()
@@ -19,34 +20,49 @@ end
 
 Citizen.CreateThread(function()
     Engine:applyFlags()
-    if Config.Engine.preventDisable or Config.Locks.lockNpcVehicles then
-        while true do
-            Citizen.Wait(100)
-            local vehicle = GetVehiclePedIsTryingToEnter(cache.ped)
-            if vehicle and vehicle ~= 0 then
-                if Config.Engine.preventDisable then
-                    local engineOn = GetIsVehicleEngineRunning(vehicle)
-                    if engineOn then
-                        SetVehicleEngineOn(vehicle, true, true, true)
-                    end
-                end
 
-                if Config.Locks.lockNpcVehicles then
-                    local lockStatus = GetVehicleDoorLockStatus(vehicle)
-                    local isOwned = IsVehiclePreviouslyOwnedByPlayer(vehicle)
-                    local driverPed = GetPedInVehicleSeat(vehicle, -1)
-                    if not isOwned and (driverPed == 0 or not IsPedAPlayer(driverPed)) then
-                        if lockStatus == 1 and driverPed ~= 0 then
-                            SetVehicleDoorsLocked(vehicle, 2)
-                            ClearPedTasks(cache.ped)
-                        elseif lockStatus > 2 then
-                            SetVehicleDoorsLocked(vehicle, 1)
-                            ClearPedTasks(cache.ped)
-                        end
-                    end
+    local lockAmbient = Config.Locks.lockNpcVehicles or Config.Locks.lockParkedVehicles
+    if not (Config.Engine.preventDisable or lockAmbient) then
+        return
+    end
+
+    while true do
+        local sleep = 100
+        local vehicle = GetVehiclePedIsTryingToEnter(cache.ped)
+        if vehicle and vehicle ~= 0 then
+            -- Poll every frame while entering so we cancel the window-smash
+            -- attempt before the glass actually breaks.
+            sleep = 0
+
+            if Config.Engine.preventDisable and GetIsVehicleEngineRunning(vehicle) then
+                SetVehicleEngineOn(vehicle, true, true, true)
+            end
+
+            -- Lock unowned ambient vehicles so the player can't just hop in and
+            -- hotwire - they must lockpick first. Vehicles the player owns or has
+            -- already lockpicked open are left alone.
+            if lockAmbient
+            and not IsVehiclePreviouslyOwnedByPlayer(vehicle)
+            and not Locks.theftUnlocked[vehicle]
+            and GetVehicleDoorLockStatus(vehicle) < 2 then
+                local driverPed = GetPedInVehicleSeat(vehicle, -1)
+                local hasNpcDriver = driverPed ~= 0 and not IsPedAPlayer(driverPed)
+                local isParked = driverPed == 0
+
+                if (hasNpcDriver and Config.Locks.lockNpcVehicles)
+                or (isParked and Config.Locks.lockParkedVehicles) then
+                    SetVehicleDoorsLocked(vehicle, 2)
                 end
             end
+
+            -- Car is locked: stop the player smashing the window to jack it (they
+            -- must lockpick). Cancelling the task immediately prevents the break-in
+            -- animation from ever reaching the glass.
+            if IsPedTryingToEnterALockedVehicle(cache.ped) then
+                ClearPedTasksImmediately(cache.ped)
+            end
         end
+        Citizen.Wait(sleep)
     end
 end)
 

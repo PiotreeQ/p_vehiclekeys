@@ -17,7 +17,8 @@ Config.Settings = {
 ---@field requireClosedDoors: boolean Whether to require vehicle doors to be closed before locking.
 ---@field canToggle: fun():boolean A function that returns whether the player can toggle vehicle locks (not dead, cuffed, etc).
 ---@field ignoreBikes: boolean [true = bikes are always unlocked, false = bikes can be locked]
----@field lockNpcVehicles: boolean Whether NPC vehicles can be locked/unlocked.
+---@field lockNpcVehicles: boolean Lock unowned street vehicles currently driven by an NPC (player must lockpick to get in).
+---@field lockParkedVehicles: boolean Lock unowned parked/empty street vehicles (player must lockpick to get in).
 ---@field unlockToolJobs: table A list of jobs that can unlock vehicles without keys (e.g., police, mechanic).
 ----@field findVehicleBlip: boolean Whether to create a blip on the map for the vehicle when using the find vehicle feature.
 Config.Locks = {
@@ -38,6 +39,7 @@ Config.Locks = {
     end,
     ignoreBikes = true,
     lockNpcVehicles = true,
+    lockParkedVehicles = true,
     unlockToolJobs = {'mechanic', 'police'},
     findVehicleBlip = true
 }
