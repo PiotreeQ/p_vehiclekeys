@@ -29,7 +29,7 @@ exports('removeKey', function(plate, entity, removeAll)
     Keys:removeKey(plate, entity, removeAll)
 end)
 
-if Bridge?.Config?.Debug then
+if true then
     RegisterCommand('spawnKeys', function()
         if not cache.vehicle or cache.vehicle == 0 then
             return lib.print.info('You must be in a vehicle to spawn keys')

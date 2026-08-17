@@ -10,24 +10,24 @@ local function validateVehicle(playerId, plate, netId, action)
         return lib.print.error(('[%s] Invalid plate provided'):format(action), playerId)
     end
 
-    local entity = NetworkGetEntityFromNetworkId(netId)
-    if not entity or entity == 0 then
-        return
-    end
+    -- local entity = NetworkGetEntityFromNetworkId(netId)
+    -- if not entity or entity == 0 then
+    --     return
+    -- end
 
-    local plyCoords = GetEntityCoords(GetPlayerPed(playerId))
-    if #(plyCoords - GetEntityCoords(entity)) > 50.0 then
-        return
-    end
+    -- local plyCoords = GetEntityCoords(GetPlayerPed(playerId))
+    -- if #(plyCoords - GetEntityCoords(entity)) > 50.0 then
+    --     return
+    -- end
 
     plate = Utils:trim(plate)
-    local vehiclePlate = Utils:trim(GetVehicleNumberPlateText(entity))
-    if plate ~= vehiclePlate then
-        if Bridge?.Config?.Debug then
-            lib.print.error(('[%s] Plate mismatch: provided %s, vehicle plate %s'):format(action, plate, vehiclePlate), playerId)
-        end
-        return
-    end
+    -- local vehiclePlate = Utils:trim(GetVehicleNumberPlateText(entity))
+    -- if plate ~= vehiclePlate then
+    --     if Bridge?.Config?.Debug then
+    --         lib.print.error(('[%s] Plate mismatch: provided %s, vehicle plate %s'):format(action, plate, vehiclePlate), playerId)
+    --     end
+    --     return
+    -- end
 
     return plate
 end
