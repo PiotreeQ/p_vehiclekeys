@@ -13,10 +13,9 @@
 
     A shim is only registered when the real resource is not running.
 
-    Note: GIVING a key by plate is validated server-side, so the matching
-    vehicle must exist within 50m of the player (true for the usual vehicle
-    shop / garage / job script use cases). REMOVING a key never requires the
-    vehicle to be present.
+    Note: giving/removing a key only needs the plate - the vehicle doesn't have
+    to exist yet (scripts usually fire these right after spawning it). Giving
+    is idempotent: a player never gets a second key for a plate they hold.
 ]]
 
 local Compat = {}
@@ -85,35 +84,11 @@ local function getAllKeys()
     return plates
 end
 
-local function findVehicleByPlate(plate)
-    plate = toPlate(plate)
-    if not plate then return end
-
-    if cache.vehicle and cache.vehicle ~= 0
-    and Utils:trim(GetVehicleNumberPlateText(cache.vehicle)) == plate then
-        return cache.vehicle
-    end
-
-    for _, v in ipairs(lib.getNearbyVehicles(GetEntityCoords(cache.ped), 50.0, true)) do
-        if Utils:trim(GetVehicleNumberPlateText(v.vehicle)) == plate then
-            return v.vehicle
-        end
-    end
-end
-
 local function addKeyByPlate(plate)
     plate = toPlate(plate)
     if not plate then return end
 
-    local vehicle = findVehicleByPlate(plate)
-    if not vehicle then
-        if Bridge?.Config?.Debug then
-            lib.print.warn(('compat: addKey skipped, no vehicle with plate %s nearby'):format(plate))
-        end
-        return
-    end
-
-    Keys:createKey(plate, vehicle)
+    TriggerServerEvent('p_vehiclekeys/compat/addKey', plate)
 end
 
 local function removeKeyByPlate(plate, removeAll)
@@ -128,10 +103,7 @@ local function addKeyByEntity(vehicle)
     vehicle = vehicle or cache.vehicle
     if not vehicle or vehicle == 0 or not DoesEntityExist(vehicle) then return end
 
-    local plate = toPlate(GetVehicleNumberPlateText(vehicle))
-    if not plate then return end
-
-    Keys:createKey(plate, vehicle)
+    addKeyByPlate(GetVehicleNumberPlateText(vehicle))
 end
 
 local function removeKeyByEntity(vehicle)
@@ -158,6 +130,12 @@ if shouldShim('qb-vehiclekeys') then
 
     registerExport('qb-vehiclekeys', 'addNoLockVehicles', function(_model) end)
     registerExport('qb-vehiclekeys', 'removeNoLockVehicles', function(_model) end)
+
+    -- The most common qb-vehiclekeys entry point: garages, vehicle shops, phones
+    -- (lb-phone, 17mov), jobs... all call TriggerEvent('vehiclekeys:client:SetOwner', plate)
+    RegisterNetEvent('vehiclekeys:client:SetOwner', function(plate)
+        addKeyByPlate(plate)
+    end)
 
     RegisterNetEvent('qb-vehiclekeys:client:AddKeys', function(plate)
         addKeyByPlate(plate)
@@ -262,6 +240,10 @@ if shouldShim('qs-vehiclekeys') then
 
     registerExport('qs-vehiclekeys', 'RemoveKeys', function(plate, _model)
         removeKeyByPlate(plate)
+    end)
+
+    registerExport('qs-vehiclekeys', 'GetKey', function(plate)
+        return hasKey(plate)
     end)
 
     registerExport('qs-vehiclekeys', 'GiveKeysAuto', function()

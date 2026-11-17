@@ -67,11 +67,21 @@ local function plateFromNetId(netId)
     return plateFromEntity(NetworkGetEntityFromNetworkId(netId))
 end
 
+local function hasKey(playerId, plate)
+    playerId, plate = toPlayerId(playerId), toPlate(plate)
+    if not playerId or not plate then return false end
+
+    return Bridge.Inventory.getItemCount(playerId, 'car_key', { plate = plate }) > 0
+end
+
 -- Trusted server-side give/remove: other resources already decided the player
 -- should (not) have this key, so no vehicle proximity validation is applied.
+-- Giving is idempotent like in the original resources: garages/shops call it on
+-- every spawn, so don't stack a new car_key item each time.
 local function giveKey(playerId, plate)
     playerId, plate = toPlayerId(playerId), toPlate(plate)
     if not playerId or not plate then return end
+    if hasKey(playerId, plate) then return end
 
     Bridge.Inventory.addItem(playerId, 'car_key', 1, { plate = plate })
 end
@@ -84,13 +94,6 @@ local function removeKey(playerId, plate, removeAll)
     if count < 1 then return end
 
     Bridge.Inventory.removeItem(playerId, 'car_key', count, { plate = plate })
-end
-
-local function hasKey(playerId, plate)
-    playerId, plate = toPlayerId(playerId), toPlate(plate)
-    if not playerId or not plate then return false end
-
-    return Bridge.Inventory.getItemCount(playerId, 'car_key', { plate = plate }) > 0
 end
 
 -- Every plate the player currently holds a car_key for (metadata is stored under
@@ -114,26 +117,19 @@ local function getAllKeys(playerId)
     return plates
 end
 
--- For client-triggered compat events: the matching vehicle must exist near the player
-local function findVehicleByPlate(plate, playerId)
-    plate = toPlate(plate)
-    playerId = toPlayerId(playerId)
-    if not plate or not playerId then return end
-
-    local pedCoords = GetEntityCoords(GetPlayerPed(playerId))
-    for _, vehicle in ipairs(GetAllVehicles()) do
-        if Utils:trim(GetVehicleNumberPlateText(vehicle)) == plate
-        and #(pedCoords - GetEntityCoords(vehicle)) <= 50.0 then
-            return vehicle
-        end
-    end
-end
-
 local function sourceOrNil()
     local src = source
     if type(src) ~= 'number' or src < 1 then return end
     return src
 end
+
+-- All client-side compat gives (vehiclekeys:client:SetOwner, AddKeys, client
+-- exports...) land here. Same trust level as p_vehiclekeys/createKey: no
+-- proximity check, because scripts usually fire these right after a server-side
+-- spawn (entity/plate not synced yet) or for a vehicle that isn't spawned at all.
+RegisterNetEvent('p_vehiclekeys/compat/addKey', function(plate)
+    giveKey(sourceOrNil(), plate)
+end)
 
 if shouldShim('qb-vehiclekeys') then
     registerExport('qb-vehiclekeys', 'GiveKeys', function(id, plate)
@@ -162,11 +158,7 @@ if shouldShim('qb-vehiclekeys') then
     end)
 
     RegisterNetEvent('qb-vehiclekeys:server:AcquireVehicleKeys', function(plate)
-        local src = sourceOrNil()
-        if not src then return end
-        if not findVehicleByPlate(plate, src) then return end
-
-        giveKey(src, plate)
+        giveKey(sourceOrNil(), plate)
     end)
 
     RegisterNetEvent('qb-vehiclekeys:server:RemoveVehicleKeys', function(plate)
